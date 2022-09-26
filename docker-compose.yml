@@ -1,7 +1,7 @@
 version: '2'
 
 services:
-  db:
+  postgres:
     stdin_open: true
     tty: true
     image: postgres:13
@@ -23,4 +23,4 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - db
+      - postgres
