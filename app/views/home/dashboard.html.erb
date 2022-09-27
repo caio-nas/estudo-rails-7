@@ -1,0 +1,22 @@
+<h1>Welcome, this is user login home page</h1>
+
+<button type="button"
+        class="btn btn-lg btn-success"
+        data-bs-toggle="popover"
+        title="Popover title"
+        data-bs-content="Amazing content, right ?">
+        Click to toggle popover
+</button>
+
+<h2>Latest Posts</h2>
+
+<%- if current_user.posts.empty? %>
+  <h3>No posts yet</h3>
+  <br/>
+<%- else %>
+  <%- current_user.posts.order(created_at: :desc).first(5).each do |post| %>
+    <h3><%= post.title %></h3>
+    <p><%= post.body %></p>
+    <hr/>
+  <% end %>
+<% end %>
