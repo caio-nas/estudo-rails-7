@@ -1,4 +1,4 @@
-<%= form_with(model: post) do |form| %>
+<%= form_with(model: post) do |post_form| %>
   <% if post.errors.any? %>
     <div style="color: red">
       <h2><%= pluralize(post.errors.count, "error") %> prohibited this post from being saved:</h2>
@@ -12,16 +12,49 @@
   <% end %>
 
   <div>
-    <%= form.label :title, style: "display: block" %>
-    <%= form.text_field :title %>
+    <%= post_form.label :title, style: "display: block" %>
+    <%= post_form.text_field :title %>
   </div>
 
   <div>
-    <%= form.label :body, style: "display: block" %>
-    <%= form.text_area :body %>
+    <%= post_form.label :body, style: "display: block" %>
+    <%= post_form.text_area :body %>
   </div>
 
+  <turbo-frame id="<%= post_form.field_id(:comments) %>" class="contents">
+    <%= post_form.fields_for :comments do |comment_form| %>
+      <div class="flex gap-2">
+        <%= comment_form.hidden_field :user_id, value: post_form.object.user_id %>
+
+        <div class="text-sm text-right"> <%= comment_form.object&.id || "New comment" %> </div>
+        <%= comment_form.text_area :body, placeholder: "Add your comment here" %>
+      </div>
+    <% end %>
+
+    <div class="flex gap-2">
+      <%- if post_form.object.comments.map(&:id).compact_blank %>
+        <p>No comments</p>
+      <% else %>
+        <%- post_form.object.comments.each do |comment| %>
+          <%- if comment.id %>
+            <div class="text-sm text-right"> Author: <%= comment.user.name %> </div>
+            <div class="text-sm text-right">
+              <p>Body:</p>
+              <%= comment.body %>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </turbo-frame>
+
+  <%= post_form.submit "Add comment",
+      formmethod: "post",
+      formaction: add_comment_post_path(id: post_form.object),
+      data: { turbo_frame: post_form.field_id(:comments) },
+      name: :add_comment %>
+
   <div>
-    <%= form.submit %>
+    <%= post_form.submit %>
   </div>
 <% end %>

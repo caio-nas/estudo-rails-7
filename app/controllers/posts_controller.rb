@@ -1,5 +1,6 @@
 class PostsController < AuthenticatedController
-  before_action :set_post, only: %i[ show edit update destroy ]
+  before_action :set_post, only: %i[ show edit update destroy add_comment ]
+  before_action :set_comment, only: %i[ new edit  ]
 
   # GET /posts or /posts.json
   def index
@@ -58,6 +59,25 @@ class PostsController < AuthenticatedController
     end
   end
 
+  def add_comment
+    set_comment
+
+    respond_to do |format|
+      # @post.set_attributes(post_params)
+      # @post.comments.each do |comment|
+      #   comment.user = current_user
+      # end
+
+      if @post.update(post_params)
+        format.html { redirect_to post_url(@post), notice: "Post was successfully updated." }
+        format.json { render :show, status: :ok, location: @post }
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @post.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_post
@@ -66,6 +86,10 @@ class PostsController < AuthenticatedController
 
     # Only allow a list of trusted parameters through.
     def post_params
-      params.require(:post).permit(:body, :title)
+      params.require(:post).permit(:body, :title, :comments_attributes)
+    end
+
+    def set_comment
+      @post.comments.build
     end
 end
